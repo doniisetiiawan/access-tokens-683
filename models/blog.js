@@ -16,7 +16,7 @@ postSchema.methods.addAuthor = function (author) {
 };
 
 postSchema.pre('save', function (next) {
-  this.slug = slug(this.title, { lower: 'on' });
+  this.slug = slug(this.title, { lower: true });
   this.createdAt = Date.now();
 
   next();
