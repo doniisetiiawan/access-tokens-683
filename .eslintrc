@@ -5,6 +5,8 @@
     "document": true
   },
   "rules": {
-    "linebreak-style": "off"
+    "linebreak-style": "off",
+    "consistent-return": "warn",
+    "no-console": "off"
   }
 }
