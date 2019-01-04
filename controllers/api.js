@@ -1,4 +1,5 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import {
   createPost,
   findAllPosts,
@@ -6,8 +7,41 @@ import {
   removePost,
   updatePost,
 } from '../models/blog';
+import { login } from '../models/user';
+
+import config from '../config';
+
+const { security: { secretKey, expiresIn } } = config;
 
 const router = express.Router();
+
+const validateToken = (req, res, next) => {
+  if (req.headers['access-token']) {
+    req.accessToken = req.headers['access-token'].split(' ')[1];
+
+    return next();
+  }
+  res.status(403).send({
+    error: 'You must send an access-token header...',
+  });
+};
+
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  login(username, password, (data) => {
+    if (Object.keys(data).length === 0) {
+      res.status(403).send({ error: 'Invalid login' });
+    }
+
+    jwt.sign({ data }, secretKey, { expiresIn }, (error,
+      accessToken) => {
+      res.json({
+        accessToken,
+      });
+    });
+  });
+});
 
 router.get('/', (req, res) => {
   res.send(`
@@ -19,13 +53,22 @@ router.get('/', (req, res) => {
 `);
 });
 
-router.get('/posts', (req, res) => {
-  findAllPosts((posts) => {
-    res.json({
-      response: posts,
-    });
+router.get('/posts', validateToken, (req, res) => {
+  jwt.verify(req.accessToken, secretKey, (error, userData) => {
+    if (error) {
+      console.log(error);
+      res.status(403).send({ error: 'Invalid token' });
+    } else {
+      findAllPosts((posts) => {
+        res.json({
+          response: posts,
+          user: userData,
+        });
+      });
+    }
   });
 });
+
 
 router.get('/post/:slug', (req, res) => {
   const { params: { slug } } = req;
