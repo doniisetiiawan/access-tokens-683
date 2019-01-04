@@ -5,7 +5,7 @@ import {
   findBySlug,
   removePost,
   updatePost,
-} from './blog';
+} from '../models/blog';
 
 const router = express.Router();
 
