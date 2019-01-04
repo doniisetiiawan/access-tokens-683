@@ -9,6 +9,7 @@
     "consistent-return": "warn",
     "no-console": "off",
     "no-shadow": "warn",
-    "import/prefer-default-export": "warn"
+    "import/prefer-default-export": "warn",
+    "prefer-destructuring": "warn"
   }
 }
